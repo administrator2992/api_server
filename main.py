@@ -4,7 +4,8 @@ from http.client import BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, METHOD_NO
 from flask import Flask, render_template, request, jsonify, session
 from flask_cors import CORS
 import secrets
-from db import create_table_writekey, create_table_readkey, create_table_cfg, create_table_output, get_db, delete_all_api, delete_all_cfg, delete_all_output
+from db import create_table_writekey, create_table_readkey, create_table_cfg, \
+                create_table_output, get_db, delete_all_api, delete_all_cfg, delete_all_output, create_table_account
 from cryptography.fernet import Fernet
 import write
 import read
@@ -46,6 +47,21 @@ def index():
 
     else: return render_template('index.html')
 
+@app.route("/register", methods=["POST"])
+def register():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    
+    with open("secret.key", "rb") as key_file:
+        secret_key = key_file.read()
+    
+    registered = insert_account(username, password, secret_key)
+    if registered:
+        token = secrets.token_urlsafe(16)  # Generate session token
+        session['token'] = token
+        return jsonify({"message": "Register successful", "token": token})
+    else:
+        return jsonify({"message": "Account Has been Created"}), 401
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -266,6 +282,18 @@ def verifyKeywrite(key):
         return False
     return True
 
+def insert_account(username, password, key):
+    if verifyaccount(username, key):
+        return False
+    fernet = Fernet(key)
+    password = fernet.encrypt(password.encode()).decode()
+    db = get_db()
+    cursor = db.cursor()
+    query = "INSERT INTO account(username, password) VALUES (?, ?)"
+    cursor.execute(query, [username, password])
+    db.commit()
+    return True
+
 def verifyaccount(username, key):
     fernet = Fernet(key)
     db = get_db()
@@ -273,9 +301,9 @@ def verifyaccount(username, key):
     query = "SELECT password FROM account WHERE username = ?"
     cursor.execute(query, [username])
     result = cursor.fetchone()
-    password = fernet.decrypt(result[0].encode()).decode()
     if result is None:
         return False
+    password = fernet.decrypt(result[0].encode()).decode()
     return password
 
 @app.errorhandler(404)
@@ -354,6 +382,7 @@ if __name__ == "__main__":
         create_table_writekey()
         create_table_cfg()
         create_table_output()
+        create_table_account()
         app.run(host=sys.argv[1], port=8123, debug=True)
     except Exception as e:
         print(f"Error: {e}")

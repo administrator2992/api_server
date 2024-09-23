@@ -12,12 +12,13 @@
 
     <!-- Login Form -->
     <div id="login-form">
-        <h3>Login</h3>
+        <h3>Login/Register</h3>
         <label for="username">Username:</label>
         <input type="text" id="username" name="username"><br><br>
         <label for="password">Password:</label>
         <input type="password" id="password" name="password"><br><br>
-        <button onclick="login()">Login</button>
+        <button onclick="login()">Login </button>
+        <button onclick="register()">Register</button>
     </div>
 
     <!-- API Access Section (Hidden until login is successful) -->
@@ -64,6 +65,28 @@
                 },
                 error: function(err) {
                     alert("Login failed: " + err.responseJSON.message);
+                }
+            });
+        }
+	
+	function register() {
+            const username = $('#username').val();
+            const password = $('#password').val();
+
+            $.ajax({
+                type: "POST",
+                url: "/register",
+                data: { username, password },
+                success: function(response) {
+                    alert("Register successful");
+                    // Store session token
+                    sessionStorage.setItem('token', response.token);
+                    // Show API section
+                    $('#login-form').hide();
+                    $('#api-section').show();
+                },
+                error: function(err) {
+                    alert("Register failed: " + err.responseJSON.message);
                 }
             });
         }

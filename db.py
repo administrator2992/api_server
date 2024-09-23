@@ -20,6 +20,21 @@ def create_table_readkey():
     for table in tables:
         cursor.execute(table)
 
+def create_table_account():
+    tables = [
+            """CREATE TABLE IF NOT EXISTS
+                account(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    username TEXT NOT NULL,
+                    password TEXT NOT NULL)"""
+        ]
+
+    db = get_db()
+    cursor = db.cursor()
+
+    for table in tables:
+        cursor.execute(table)
+
 def create_table_writekey():
     tables = [
            """CREATE TABLE IF NOT EXISTS
