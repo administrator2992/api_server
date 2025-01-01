@@ -19,10 +19,10 @@ def insert_output(output):
     cursor = db.cursor()
     
     # The correct SQL query
-    query = "INSERT INTO output_table(throughput, power_cons) VALUES (?, ?)"
+    query = "INSERT INTO output_table(throughput, power_cons, cpu_percent, gpu_percent, mem_percent) VALUES (?, ?)"
     
     # Unpack the values of output into a list or tuple to match the query placeholders
-    cursor.execute(query, [output['throughput'], output['power']])
+    cursor.execute(query, [output['throughput'], output['power'], output['cpu%'], output['gpu%'], output['mem%']])
     
     db.commit()
     return True
