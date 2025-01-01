@@ -74,7 +74,10 @@ def create_table_output():
                 output_table(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     throughput INTEGER NOT NULL,
-                    power_cons INTEGER NOT NULL
+                    power_cons INTEGER NOT NULL,
+                    cpu% INTEGER NOT NULL,
+                    gpu% INTEGER NOT NULL,
+                    mem% INTEGER NOT NULL
                     )"""
         ]
     
