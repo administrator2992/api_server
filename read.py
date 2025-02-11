@@ -1,8 +1,8 @@
 from db import get_db
 
 # obtain all data cfg
-def get_cfg():
-    db = get_db()
+def get_cfg(port):
+    db = get_db(port)
     cursor = db.cursor()
     #SELECT
     query = "SELECT * FROM cfg_table"
@@ -15,8 +15,8 @@ def get_cfg():
         
     return result
 
-def get_output():
-    db = get_db()
+def get_output(port):
+    db = get_db(port)
     cursor = db.cursor()
     #SELECT
     query = "SELECT * FROM output_table"

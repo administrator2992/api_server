@@ -1,8 +1,8 @@
 from db import get_db
 
 # Add data to cfg_table
-def insert_cfg(cfg):
-    db = get_db()
+def insert_cfg(cfg, port):
+    db = get_db(port)
     cursor = db.cursor()
     
     # The correct SQL query
@@ -14,8 +14,8 @@ def insert_cfg(cfg):
     db.commit()
     return True
 
-def insert_output(output):
-    db = get_db()
+def insert_output(output, port):
+    db = get_db(port)
     cursor = db.cursor()
     
     # The correct SQL query

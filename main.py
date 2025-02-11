@@ -89,7 +89,7 @@ def cfg():
         keyread = request.headers.get('Authorization')
         try:
             if verifyKeyread(keyread):
-                result = read.get_cfg()
+                result = read.get_cfg(sys.argv[2])
                 resp = jsonify(result)
                 resp.status_code = 200
                 return resp
@@ -117,7 +117,7 @@ def cfg():
             if verifyKeywrite(keywrite):
                 data = request.json
                 cfg = data
-                result = write.insert_cfg(cfg)
+                result = write.insert_cfg(cfg, sys.argv[2])
                 data = {
                     'status': 201,
                     'message': result        
@@ -181,7 +181,7 @@ def output():
         keyread = request.headers.get('Authorization')
         try:
             if verifyKeyread(keyread):
-                result = read.get_output()
+                result = read.get_output(sys.argv[2])
                 resp = jsonify(result)
                 resp.status_code = 200
                 return resp
@@ -209,7 +209,7 @@ def output():
             if verifyKeywrite(keywrite):
                 data = request.json
                 cfg = data
-                result = write.insert_output(cfg)
+                result = write.insert_output(cfg, sys.argv[2])
                 data = {
                     'status': 201,
                     'message': result        
