@@ -9,6 +9,7 @@ from db import create_table_writekey, create_table_readkey, create_table_cfg, \
 from cryptography.fernet import Fernet
 import write
 import read
+import os
 
 app = Flask(__name__)
 app.secret_key = '9e7d2c88b4d94e8fb2c3dd1e9f2a7cd0'
@@ -23,18 +24,18 @@ def index():
     if session.get('token') == token:
         if request.method == 'POST':
             if request.form.get('action1') == "READ":
-                create_table_readkey()
+                create_table_readkey(sys.argv[2])
                 keyread = secrets.token_urlsafe(16)
-                db = get_db()
+                db = get_db(sys.argv[2])
                 cursor = db.cursor()
                 query = "INSERT INTO readkey_table(key) VALUES (?)"
                 cursor.execute(query, [keyread])
                 db.commit()
                 return render_template("read.html", keyread=keyread)
             elif request.form.get('action2') == "WRITE":
-                create_table_writekey()
+                create_table_writekey(int(sys.argv[2]))
                 keywrite = secrets.token_urlsafe(16)
-                db = get_db()
+                db = get_db(sys.argv[2])
                 cursor = db.cursor()
                 query = "INSERT INTO writekey_table(key) VALUES (?)"
                 cursor.execute(query, [keywrite])
@@ -145,7 +146,7 @@ def cfg():
         key = request.headers.get('Authorization')
         try:
             if verifyKeywrite(key):
-                delete_all_cfg()
+                delete_all_cfg(sys.argv[2])
                 data = {
                     'status': 201,
                     'message': "delete all cfg successful"        
@@ -237,7 +238,7 @@ def output():
         key = request.headers.get('Authorization')
         try:
             if verifyKeywrite(key):
-                delete_all_output()
+                delete_all_output(sys.argv[2])
                 data = {
                     'status': 201,
                     'message': "delete all output successful"        
@@ -263,7 +264,7 @@ def output():
             return resp
 
 def verifyKeyread(key):
-    db = get_db()
+    db = get_db(sys.argv[2])
     cursor = db.cursor()
     query = "SELECT key FROM readkey_table WHERE key = ?"
     cursor.execute(query, [key])
@@ -273,7 +274,7 @@ def verifyKeyread(key):
     return True
 
 def verifyKeywrite(key):
-    db = get_db()
+    db = get_db(sys.argv[2])
     cursor = db.cursor()
     query = "SELECT key FROM writekey_table WHERE key = ?"
     cursor.execute(query, [key])
@@ -287,7 +288,7 @@ def insert_account(username, password, key):
         return False
     fernet = Fernet(key)
     password = fernet.encrypt(password.encode()).decode()
-    db = get_db()
+    db = get_db(sys.argv[2])
     cursor = db.cursor()
     query = "INSERT INTO account(username, password) VALUES (?, ?)"
     cursor.execute(query, [username, password])
@@ -296,7 +297,7 @@ def insert_account(username, password, key):
 
 def verifyaccount(username, key):
     fernet = Fernet(key)
-    db = get_db()
+    db = get_db(sys.argv[2])
     cursor = db.cursor()
     query = "SELECT password FROM account WHERE username = ?"
     cursor.execute(query, [username])
@@ -369,7 +370,8 @@ def unauthorized_handler(error):
 # Signal handler to catch Ctrl+C and other termination signals
 def signal_handler(sig, frame):
     print("Signal received, cleaning up...")
-    delete_all_api()
+    delete_all_api(sys.argv[2])
+    os.remove(f"database-{sys.argv[2]}.db")
     sys.exit(0)
 
 if __name__ == "__main__":
@@ -378,11 +380,11 @@ if __name__ == "__main__":
     signal.signal(signal.SIGTERM, signal_handler)
 
     try:
-        create_table_readkey()
-        create_table_writekey()
-        create_table_cfg()
-        create_table_output()
-        create_table_account()
-        app.run(host=sys.argv[1], port=8123, debug=True)
+        create_table_readkey(sys.argv[2])
+        create_table_writekey(sys.argv[2])
+        create_table_cfg(sys.argv[2])
+        create_table_output(sys.argv[2])
+        create_table_account(sys.argv[2])
+        app.run(host=sys.argv[1], port=int(sys.argv[2]), debug=True)
     except Exception as e:
         print(f"Error: {e}")

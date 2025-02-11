@@ -1,12 +1,10 @@
 import sqlite3
 
-DATABASE_NAME = "database.db"
-
-def get_db():
-    conn = sqlite3.connect(DATABASE_NAME)
+def get_db(port):
+    conn = sqlite3.connect(f"database-{port}.db")
     return conn
 
-def create_table_readkey():
+def create_table_readkey(port):
     tables = [
             """CREATE TABLE IF NOT EXISTS
                 readkey_table(
@@ -14,13 +12,13 @@ def create_table_readkey():
                     key TEXT NOT NULL)"""
         ]
     
-    db = get_db()
+    db = get_db(port)
     cursor = db.cursor()
     
     for table in tables:
         cursor.execute(table)
 
-def create_table_account():
+def create_table_account(port):
     tables = [
             """CREATE TABLE IF NOT EXISTS
                 account(
@@ -29,13 +27,13 @@ def create_table_account():
                     password TEXT NOT NULL)"""
         ]
 
-    db = get_db()
+    db = get_db(port)
     cursor = db.cursor()
 
     for table in tables:
         cursor.execute(table)
 
-def create_table_writekey():
+def create_table_writekey(port):
     tables = [
            """CREATE TABLE IF NOT EXISTS
                 writekey_table(
@@ -43,13 +41,13 @@ def create_table_writekey():
                     key TEXT NOT NULL)"""
         ]
     
-    db = get_db()
+    db = get_db(port)
     cursor = db.cursor()
     
     for table in tables:
         cursor.execute(table)
     
-def create_table_cfg():
+def create_table_cfg(port):
     tables = [
            """CREATE TABLE IF NOT EXISTS
                 cfg_table(
@@ -62,13 +60,13 @@ def create_table_cfg():
                     )"""
         ]
     
-    db = get_db()
+    db = get_db(port)
     cursor = db.cursor()
     
     for table in tables:
         cursor.execute(table)
 
-def create_table_output():
+def create_table_output(port):
     tables = [
            """CREATE TABLE IF NOT EXISTS
                 output_table(
@@ -81,14 +79,14 @@ def create_table_output():
                     )"""
         ]
     
-    db = get_db()
+    db = get_db(port)
     cursor = db.cursor()
     
     for table in tables:
         cursor.execute(table)
 
-def delete_all_api():
-    db = get_db()
+def delete_all_api(port):
+    db = get_db(port)
     cursor = db.cursor()
     # DELETE
     queryread = "DELETE FROM readkey_table"
@@ -97,16 +95,16 @@ def delete_all_api():
     cursor.execute(querywrite)
     db.commit()
 
-def delete_all_cfg():
-    db = get_db()
+def delete_all_cfg(port):
+    db = get_db(port)
     cursor = db.cursor()
     # DELETE
     query = "DELETE FROM cfg_table"
     cursor.execute(query)
     db.commit()
 
-def delete_all_output():
-    db = get_db()
+def delete_all_output(port):
+    db = get_db(port)
     cursor = db.cursor()
     # DELETE
     query = "DELETE FROM output_table"
